@@ -1,0 +1,8 @@
+{
+  "name": "Z Scan: PDF Maker",
+  "description": "A modern, offline-first Android document scanner and multi-page PDF creator with CameraX scanning, image enhancement, local library management, and built-in PDF viewer.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": []
+}

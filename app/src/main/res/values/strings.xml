@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Z Scan: PDF Maker</string>
+    <string name="app_version">2.0.0</string>
+    <string name="welcome_subtitle">Scan, enhance, and create crisp PDFs offline</string>
+    <string name="scan_document">Scan Document</string>
+    <string name="scan_document_desc">Capture single or multi-page documents with CameraX</string>
+    <string name="import_image">Import Images</string>
+    <string name="create_pdf">Create PDF</string>
+    <string name="my_documents">My Documents</string>
+    <string name="open_external_pdf">Open PDF File</string>
+    <string name="recent_documents">Recent Documents</string>
+    <string name="empty_documents_title">No PDF Documents Yet</string>
+    <string name="empty_documents_subtitle">Scan paper documents with your camera or import images from your device to create your first PDF.</string>
+    <string name="scan_first_document">Scan Your First Document</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_documents">Documents</string>
+    <string name="nav_settings">Settings</string>
+    <string name="feedback_title">Feedback</string>
+    <string name="feedback_subtitle">Share your feedback and suggestions</string>
+    <string name="feedback_url">https://zynor-view.web.app/</string>
+</resources>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Scanner Corner Brackets (Bright Cerulean Cyan) -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M24,37 L24,25 L36,25 L36,29.5 L28.5,29.5 L28.5,37 Z M72,25 L84,25 L84,37 L79.5,37 L79.5,29.5 L72,29.5 Z M24,71 L28.5,71 L28.5,78.5 L36,78.5 L36,83 L24,83 Z M79.5,71 L84,71 L84,83 L72,83 L72,78.5 L79.5,78.5 Z" />
+
+    <!-- Document Page Silhouette (Crisp White) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M34,31 L63,31 L74,42 L74,77 L34,77 Z" />
+
+    <!-- Document Folded Corner (Soft Cerulean Tint) -->
+    <path
+        android:fillColor="#BAE6FD"
+        android:pathData="M63,31 L63,42 L74,42 Z" />
+
+    <!-- Integrated Geometric 'Z' Symbol (Cerulean Blue #007BA7) -->
+    <path
+        android:fillColor="#007BA7"
+        android:pathData="M43,44 L65,44 L65,49 L50,62 L65,62 L65,67 L43,67 L43,62 L58,49 L43,49 Z" />
+
+    <!-- Scanning Laser Beam (Neon Rose #FF2D95) -->
+    <path
+        android:fillColor="#FF2D95"
+        android:pathData="M21,54 L87,54 L87,57.5 L21,57.5 Z" />
+</vector>
