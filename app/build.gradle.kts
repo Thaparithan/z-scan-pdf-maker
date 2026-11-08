@@ -32,12 +32,6 @@ android {
       keyAlias = "upload"
       keyPassword = System.getenv("KEY_PASSWORD")
     }
-    create("debugConfig") {
-      storeFile = file("${rootDir}/debug.keystore")
-      storePassword = "android"
-      keyAlias = "androiddebugkey"
-      keyPassword = "android"
-    }
   }
 
   buildTypes {
@@ -66,6 +60,21 @@ android {
     includeInApk = false
     includeInBundle = true
   }
+}
+
+base {
+  archivesName.set("Z-SCAN")
+}
+
+val copyZScanReleaseApk = tasks.register<Copy>("copyZScanReleaseApk") {
+  from(layout.buildDirectory.dir("outputs/apk/debug"))
+  include("Z-SCAN-debug.apk")
+  into(layout.projectDirectory.dir("../release"))
+  rename { "Z-SCAN.apk" }
+}
+
+tasks.matching { it.name == "assembleDebug" }.configureEach {
+  finalizedBy(copyZScanReleaseApk)
 }
 
 // Configure the Secrets Gradle Plugin to use .env and .env.example files
