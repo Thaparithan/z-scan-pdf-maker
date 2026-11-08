@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.CleaningServices
+import androidx.compose.material.icons.filled.Crop
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.Info
@@ -38,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -64,7 +66,9 @@ import com.example.util.DocumentFormatters
 fun SettingsScreen(
     currentThemeMode: AppThemeMode,
     storageStats: StorageUsageStats,
+    autoCropPaper: Boolean = true,
     onThemeModeSelected: (AppThemeMode) -> Unit,
+    onAutoCropToggled: (Boolean) -> Unit = {},
     onClearCacheClick: () -> Unit,
     onFeedbackClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -130,7 +134,21 @@ fun SettingsScreen(
                 }
             }
 
-            // 2. STORAGE SECTION
+            // 2. SCANNER PREFERENCES (Auto-Crop Paper Toggle)
+            item {
+                SettingsSectionCard(title = "Scanner Preferences") {
+                    SettingsToggleRow(
+                        title = "Auto-Crop Paper Edges",
+                        subtitle = "Automatically detect paper borders and crop out desk surfaces",
+                        icon = Icons.Default.Crop,
+                        checked = autoCropPaper,
+                        onCheckedChange = onAutoCropToggled,
+                        testTag = "settings_auto_crop_toggle"
+                    )
+                }
+            }
+
+            // 3. STORAGE SECTION
             item {
                 SettingsSectionCard(title = "Local Storage & Cache") {
                     Row(
@@ -490,6 +508,57 @@ private fun SettingsActionRow(
                     modifier = Modifier.size(18.dp)
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun SettingsToggleRow(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    testTag: String
+) {
+    Surface(
+        onClick = { onCheckedChange(!checked) },
+        shape = RoundedCornerShape(14.dp),
+        color = if (checked) {
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
+        } else {
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(testTag)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange
+            )
         }
     }
 }

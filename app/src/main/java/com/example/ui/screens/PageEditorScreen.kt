@@ -280,7 +280,7 @@ fun PageEditorScreen(
                         ) {
                             Icon(Icons.Default.AutoFixHigh, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Auto Edge")
+                            Text("Auto Detect Paper")
                         }
                     } else {
                         OutlinedButton(

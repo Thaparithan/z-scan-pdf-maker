@@ -2,6 +2,7 @@ package com.example
 
 import android.app.Application
 import android.content.Context
+import android.graphics.Bitmap
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.example.data.DocumentRepository
@@ -77,6 +78,13 @@ class ExampleRobolectricTest {
 
         prefsRepo.setThemeMode(AppThemeMode.SYSTEM)
         assertEquals(AppThemeMode.SYSTEM, prefsRepo.userSettingsFlow.first().themeMode)
+
+        // Verify Auto-Crop Paper preference toggle persistence
+        prefsRepo.setAutoCropPaper(false)
+        assertFalse(prefsRepo.userSettingsFlow.first().autoCropPaper)
+
+        prefsRepo.setAutoCropPaper(true)
+        assertTrue(prefsRepo.userSettingsFlow.first().autoCropPaper)
     }
 
     @Test
@@ -89,6 +97,9 @@ class ExampleRobolectricTest {
 
         val draft1 = ImageProcessor.createScanPageFromCameraFile(rawPage1, workspace, autoDetectEdges = true).getOrThrow()
         val draft2 = ImageProcessor.createScanPageFromCameraFile(rawPage2, workspace, autoDetectEdges = false).getOrThrow()
+
+        assertNotNull(draft1)
+        assertNotNull(draft2)
 
         // 2. Apply non-destructive edits (Grayscale + 90° rotation + crop) to Page 2
         val editedDraft2 = ImageProcessor.reprocessDraftPage(
@@ -160,5 +171,32 @@ class ExampleRobolectricTest {
         assertTrue(corruptedResult.isFailure)
         corruptedFile.delete()
         Unit
+    }
+
+    @Test
+    fun verifyDirectPaperDetectionOnBitmap() {
+        val width = 200
+        val height = 300
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val pixels = IntArray(width * height) { idx ->
+            val x = idx % width
+            val y = idx / width
+            // 15% margins
+            if (x in 30 until (width - 30) && y in 45 until (height - 45)) {
+                android.graphics.Color.WHITE
+            } else {
+                android.graphics.Color.rgb(32, 38, 46)
+            }
+        }
+        bitmap.setPixels(pixels, 0, width, 0, 0, width, height)
+
+        val detectedBounds = ImageProcessor.detectDocumentBounds(bitmap)
+        println("DEBUG_IN_MEMORY_DETECTED: bounds=$detectedBounds, isFullFrame=${detectedBounds.isFullFrame}")
+        assertFalse("Document bounds should detect paper sheet within desk background", detectedBounds.isFullFrame)
+        assertTrue("Paper left edge should be detected around 0.15", detectedBounds.left in 0.10f..0.18f)
+        assertTrue("Paper top edge should be detected around 0.15", detectedBounds.top in 0.10f..0.18f)
+        assertTrue("Paper right edge should be detected around 0.85", detectedBounds.right in 0.82f..0.90f)
+        assertTrue("Paper bottom edge should be detected around 0.85", detectedBounds.bottom in 0.82f..0.90f)
+        bitmap.recycle()
     }
 }

@@ -47,6 +47,7 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Cameraswitch
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Crop
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.FlashOff
 import androidx.compose.material.icons.filled.FlashOn
@@ -112,7 +113,9 @@ fun CameraScannerScreen(
     capturedPages: List<ScanDraftPage>,
     isProcessing: Boolean,
     workingCacheDir: File,
-    onPhotoCaptured: (File, (ScanDraftPage) -> Unit) -> Unit,
+    autoCropPaperDefault: Boolean = true,
+    onAutoCropToggled: ((Boolean) -> Unit)? = null,
+    onPhotoCaptured: (File, Boolean, (ScanDraftPage) -> Unit) -> Unit,
     onRetakePage: (String) -> Unit,
     onFinishToStudio: () -> Unit,
     onImportFromGalleryClick: () -> Unit,
@@ -176,7 +179,7 @@ fun CameraScannerScreen(
                 onImportGallery = onImportFromGalleryClick,
                 onCaptureTestDocument = {
                     val sampleFile = createPrintableTestDocumentFile(context, workingCacheDir, capturedPages.size + 1)
-                    onPhotoCaptured(sampleFile) { newPage ->
+                    onPhotoCaptured(sampleFile, autoCropPaperDefault) { newPage ->
                         previewedPageId = newPage.id
                     }
                 },
@@ -188,8 +191,10 @@ fun CameraScannerScreen(
                 capturedPages = capturedPages,
                 isProcessing = isProcessing,
                 workingCacheDir = workingCacheDir,
-                onPhotoCaptured = { rawFile ->
-                    onPhotoCaptured(rawFile) { newPage ->
+                autoCropPaperDefault = autoCropPaperDefault,
+                onAutoCropToggled = onAutoCropToggled,
+                onPhotoCaptured = { rawFile, autoCrop ->
+                    onPhotoCaptured(rawFile, autoCrop) { newPage ->
                         previewedPageId = newPage.id
                     }
                 },
@@ -201,12 +206,40 @@ fun CameraScannerScreen(
     }
 }
 
+/**
+ * Backward-compatible overload for 2-parameter onPhotoCaptured lambda.
+ */
+@Composable
+fun CameraScannerScreen(
+    capturedPages: List<ScanDraftPage>,
+    isProcessing: Boolean,
+    workingCacheDir: File,
+    onPhotoCaptured: (File, (ScanDraftPage) -> Unit) -> Unit,
+    onRetakePage: (String) -> Unit,
+    onFinishToStudio: () -> Unit,
+    onImportFromGalleryClick: () -> Unit,
+    onBackClick: () -> Unit
+) = CameraScannerScreen(
+    capturedPages = capturedPages,
+    isProcessing = isProcessing,
+    workingCacheDir = workingCacheDir,
+    autoCropPaperDefault = true,
+    onAutoCropToggled = null,
+    onPhotoCaptured = { file, _, onPageReady -> onPhotoCaptured(file, onPageReady) },
+    onRetakePage = onRetakePage,
+    onFinishToStudio = onFinishToStudio,
+    onImportFromGalleryClick = onImportFromGalleryClick,
+    onBackClick = onBackClick
+)
+
 @Composable
 private fun LiveCameraScannerContent(
     capturedPages: List<ScanDraftPage>,
     isProcessing: Boolean,
     workingCacheDir: File,
-    onPhotoCaptured: (File) -> Unit,
+    autoCropPaperDefault: Boolean,
+    onAutoCropToggled: ((Boolean) -> Unit)?,
+    onPhotoCaptured: (File, Boolean) -> Unit,
     onImportFromGalleryClick: () -> Unit,
     onFinishToStudio: () -> Unit,
     onBackClick: () -> Unit
@@ -219,8 +252,13 @@ private fun LiveCameraScannerContent(
     var torchEnabled by remember { mutableStateOf(false) }
     var hasFlashUnit by remember { mutableStateOf(false) }
     var autoCaptureEnabled by rememberSaveable { mutableStateOf(false) }
+    var autoCropPaperEnabled by rememberSaveable { mutableStateOf(autoCropPaperDefault) }
     var isCapturingNow by remember { mutableStateOf(false) }
     var cameraErrorText by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(autoCropPaperDefault) {
+        autoCropPaperEnabled = autoCropPaperDefault
+    }
 
     // Live document edge stability metrics from ImageAnalysis
     var frameContrastScore by remember { mutableFloatStateOf(0.55f) }
@@ -330,7 +368,7 @@ private fun LiveCameraScannerContent(
             // Fallback for virtual devices where CameraX hardware isn't attached
             val generated = createPrintableTestDocumentFile(context, workingCacheDir, capturedPages.size + 1)
             isCapturingNow = false
-            onPhotoCaptured(generated)
+            onPhotoCaptured(generated, autoCropPaperEnabled)
             return
         }
 
@@ -342,7 +380,7 @@ private fun LiveCameraScannerContent(
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     isCapturingNow = false
                     steadyFrameCount = 0
-                    onPhotoCaptured(rawFile)
+                    onPhotoCaptured(rawFile, autoCropPaperEnabled)
                 }
 
                 override fun onError(exception: ImageCaptureException) {
@@ -350,7 +388,7 @@ private fun LiveCameraScannerContent(
                     val fallback = createPrintableTestDocumentFile(context, workingCacheDir, capturedPages.size + 1)
                     isCapturingNow = false
                     steadyFrameCount = 0
-                    onPhotoCaptured(fallback)
+                    onPhotoCaptured(fallback, autoCropPaperEnabled)
                 }
             }
         )
@@ -381,19 +419,19 @@ private fun LiveCameraScannerContent(
             modifier = Modifier.fillMaxSize()
         )
 
-        // 3. Top Control Bar (Back, Auto-Capture toggle, Torch, Switch Camera)
+        // 3. Top Control Bar (Back, Auto-Capture & Paper-Crop toggles, Torch, Switch Camera)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.statusBars)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = 14.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
                 onClick = onBackClick,
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(44.dp)
                     .clip(CircleShape)
                     .background(JetBlack.copy(alpha = 0.65f))
                     .testTag("scanner_back_button")
@@ -405,33 +443,69 @@ private fun LiveCameraScannerContent(
                 )
             }
 
-            // Auto-Capture Toggle Pill
-            Surface(
-                onClick = { autoCaptureEnabled = !autoCaptureEnabled },
-                shape = RoundedCornerShape(50),
-                color = if (autoCaptureEnabled) CeruleanBlue else JetBlack.copy(alpha = 0.68f),
-                modifier = Modifier.testTag("auto_capture_toggle")
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                // Auto-Capture Toggle Pill
+                Surface(
+                    onClick = { autoCaptureEnabled = !autoCaptureEnabled },
+                    shape = RoundedCornerShape(50),
+                    color = if (autoCaptureEnabled) CeruleanBlue else JetBlack.copy(alpha = 0.68f),
+                    modifier = Modifier.testTag("auto_capture_toggle")
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.AutoAwesome,
-                        contentDescription = null,
-                        tint = if (autoCaptureEnabled) Color.White else CeruleanPrimaryDark,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Text(
-                        text = if (autoCaptureEnabled) "Auto-Capture: ON" else "Manual Capture",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = Color.White
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AutoAwesome,
+                            contentDescription = null,
+                            tint = if (autoCaptureEnabled) Color.White else CeruleanPrimaryDark,
+                            modifier = Modifier.size(15.dp)
+                        )
+                        Text(
+                            text = if (autoCaptureEnabled) "Auto-Cap" else "Manual",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color.White
+                        )
+                    }
+                }
+
+                // Auto-Crop Paper Toggle Pill
+                Surface(
+                    onClick = {
+                        val next = !autoCropPaperEnabled
+                        autoCropPaperEnabled = next
+                        onAutoCropToggled?.invoke(next)
+                    },
+                    shape = RoundedCornerShape(50),
+                    color = if (autoCropPaperEnabled) SuccessGreen.copy(alpha = 0.88f) else JetBlack.copy(alpha = 0.68f),
+                    modifier = Modifier.testTag("auto_crop_paper_toggle")
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Crop,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(15.dp)
+                        )
+                        Text(
+                            text = if (autoCropPaperEnabled) "Paper Crop" else "Full Frame",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White
+                        )
+                    }
                 }
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 if (hasFlashUnit) {
                     IconButton(
                         onClick = {
@@ -440,7 +514,7 @@ private fun LiveCameraScannerContent(
                             activeCamera?.cameraControl?.enableTorch(next)
                         },
                         modifier = Modifier
-                            .size(48.dp)
+                            .size(44.dp)
                             .clip(CircleShape)
                             .background(if (torchEnabled) NeonRose else JetBlack.copy(alpha = 0.65f))
                             .testTag("scanner_torch_button")
@@ -463,7 +537,7 @@ private fun LiveCameraScannerContent(
                             }
                         },
                         modifier = Modifier
-                            .size(48.dp)
+                            .size(44.dp)
                             .clip(CircleShape)
                             .background(JetBlack.copy(alpha = 0.65f))
                             .testTag("scanner_switch_camera_button")
@@ -494,8 +568,10 @@ private fun LiveCameraScannerContent(
                     text = when {
                         isProcessing || isCapturingNow -> "Processing page..."
                         autoCaptureEnabled && isLockedOnDocument -> "Hold steady — Auto-capturing document..."
+                        autoCropPaperEnabled && isLockedOnDocument -> "Paper detected • Auto-cropping active"
                         isLockedOnDocument -> "Document aligned • Tap shutter to scan"
-                        else -> "Align document edges inside the frame"
+                        autoCropPaperEnabled -> "Align paper document inside the frame"
+                        else -> "Full camera frame capture active"
                     },
                     style = MaterialTheme.typography.labelMedium,
                     color = Color.White,
@@ -709,16 +785,31 @@ private fun CapturedPageReviewModal(
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.White
             )
-            Surface(
-                color = CeruleanBlue.copy(alpha = 0.25f),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(
-                    text = "Auto-Enhanced",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = CeruleanPrimaryDark,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (!page.cropRect.isFullFrame) {
+                    Surface(
+                        color = SuccessGreen.copy(alpha = 0.25f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = "Paper Cropped",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = SuccessGreen,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+                Surface(
+                    color = CeruleanBlue.copy(alpha = 0.25f),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "Auto-Enhanced",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = CeruleanPrimaryDark,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    )
+                }
             }
         }
 

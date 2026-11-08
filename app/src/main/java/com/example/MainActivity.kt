@@ -260,7 +260,9 @@ fun ZScanApp(
                                 SettingsScreen(
                                     currentThemeMode = userSettings.themeMode,
                                     storageStats = storageStats,
+                                    autoCropPaper = userSettings.autoCropPaper,
                                     onThemeModeSelected = { viewModel.setThemeMode(it) },
+                                    onAutoCropToggled = { viewModel.setAutoCropPaper(it) },
                                     onClearCacheClick = { viewModel.clearTemporaryCache() },
                                     onFeedbackClick = {
                                         DocumentFormatters.openFeedbackWebsite(
@@ -281,8 +283,10 @@ fun ZScanApp(
                         capturedPages = studioState.pages,
                         isProcessing = studioState.isProcessingImages,
                         workingCacheDir = viewModel.documentRepository.getWorkingScanCacheDirectory(),
-                        onPhotoCaptured = { file, onPageReady ->
-                            viewModel.onCameraPhotoCaptured(file, onPageReady)
+                        autoCropPaperDefault = userSettings.autoCropPaper,
+                        onAutoCropToggled = { viewModel.setAutoCropPaper(it) },
+                        onPhotoCaptured = { file, autoCrop, onPageReady ->
+                            viewModel.onCameraPhotoCaptured(file, autoCropOverride = autoCrop, onPageReady = onPageReady)
                         },
                         onRetakePage = { pageId -> viewModel.deleteDraftPage(pageId) },
                         onFinishToStudio = { viewModel.openStudioReview() },

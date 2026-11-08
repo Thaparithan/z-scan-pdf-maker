@@ -297,111 +297,176 @@ object ImageProcessor {
     }
 
     /**
-     * Heuristic document boundary detector on a downsampled luminance grid.
-     * Identifies bright document paper framed against a darker background.
-     * If no distinct border contrast is found, safely returns the full frame.
+     * Advanced heuristic document boundary detector.
+     * Identifies document paper framed against backgrounds (desks, tables, carpets, surfaces).
+     * Computes multi-row/col luminance profiles and edge gradient transitions.
+     * When distinct paper borders are identified, returns the tight normalized rectangle
+     * surrounding the paper with a small margin padding (so content is never truncated).
+     * If the document already fills the frame (>95%) or no clear border is present,
+     * safely returns the full frame NormalizedRect().
      */
     fun detectDocumentBounds(bitmap: Bitmap): NormalizedRect {
-        val gridW = 64
-        val gridH = 64
-        if (bitmap.width < gridW || bitmap.height < gridH) return NormalizedRect()
+        val gridW = 96
+        val gridH = 96
+        if (bitmap.width < 32 || bitmap.height < 32) return NormalizedRect()
 
-        val scaled = Bitmap.createScaledBitmap(bitmap, gridW, gridH, true)
-        val pixels = IntArray(gridW * gridH)
-        scaled.getPixels(pixels, 0, gridW, 0, 0, gridW, gridH)
-        if (scaled !== bitmap) scaled.recycle()
+        val stepX = bitmap.width.toFloat() / gridW
+        val stepY = bitmap.height.toFloat() / gridH
+        val lumGrid = IntArray(gridW * gridH)
 
-        fun lumAt(x: Int, y: Int): Int {
-            val c = pixels[y * gridW + x]
-            val r = (c shr 16) and 0xFF
-            val g = (c shr 8) and 0xFF
-            val b = c and 0xFF
-            return (r * 77 + g * 150 + b * 29) shr 8
+        for (gy in 0 until gridH) {
+            val srcY = (gy * stepY).toInt().coerceIn(0, bitmap.height - 1)
+            for (gx in 0 until gridW) {
+                val srcX = (gx * stepX).toInt().coerceIn(0, bitmap.width - 1)
+                val c = bitmap.getPixel(srcX, srcY)
+                val r = (c shr 16) and 0xFF
+                val g = (c shr 8) and 0xFF
+                val b = c and 0xFF
+                lumGrid[gy * gridW + gx] = (r * 77 + g * 150 + b * 29) shr 8
+            }
         }
 
-        // Compare center luminance vs outer perimeter luminance
-        var centerSum = 0
+        fun lumAt(x: Int, y: Int): Int {
+            val cx = x.coerceIn(0, gridW - 1)
+            val cy = y.coerceIn(0, gridH - 1)
+            return lumGrid[cy * gridW + cx]
+        }
+
+        // 1. Analyze central area vs border perimeter
+        var centerSum = 0L
         var centerCount = 0
-        for (y in (gridH / 4) until (gridH * 3 / 4)) {
-            for (x in (gridW / 4) until (gridW * 3 / 4)) {
+        val cXStart = (gridW * 0.28f).toInt()
+        val cXEnd = (gridW * 0.72f).toInt()
+        val cYStart = (gridH * 0.28f).toInt()
+        val cYEnd = (gridH * 0.72f).toInt()
+
+        for (y in cYStart..cYEnd) {
+            for (x in cXStart..cXEnd) {
                 centerSum += lumAt(x, y)
                 centerCount++
             }
         }
-        val centerAvg = if (centerCount > 0) centerSum / centerCount else 160
+        val centerAvg = if (centerCount > 0) (centerSum / centerCount).toInt() else 160
 
-        var borderSum = 0
+        var borderSum = 0L
         var borderCount = 0
-        for (x in 0 until gridW) {
-            borderSum += lumAt(x, 0) + lumAt(x, gridH - 1)
-            borderCount += 2
+        // Sample outermost rows and columns
+        for (y in 0 until gridH) {
+            borderSum += lumAt(0, y) + lumAt(1, y) + lumAt(gridW - 2, y) + lumAt(gridW - 1, y)
+            borderCount += 4
         }
-        for (y in 1 until gridH - 1) {
-            borderSum += lumAt(0, y) + lumAt(gridW - 1, y)
-            borderCount += 2
+        for (x in 2 until gridW - 2) {
+            borderSum += lumAt(x, 0) + lumAt(x, 1) + lumAt(x, gridH - 2) + lumAt(x, gridH - 1)
+            borderCount += 4
         }
-        val borderAvg = if (borderCount > 0) borderSum / borderCount else 140
+        val borderAvg = if (borderCount > 0) (borderSum / borderCount).toInt() else 140
 
-        // Only auto-crop if there is meaningful contrast between the center sheet and outer border
-        if (centerAvg - borderAvg < 28) {
+        val lumDiff = centerAvg - borderAvg
+        // If there's negligible contrast between center and perimeter (e.g. document already covers frame),
+        // keep full frame.
+        if (abs(lumDiff) < 18) {
             return NormalizedRect()
         }
 
-        val threshold = (borderAvg + (centerAvg - borderAvg) * 0.45f).roundToInt()
+        val paperIsBrighter = lumDiff > 0
+        val threshold = (borderAvg + lumDiff * 0.38f).roundToInt()
 
+        fun isPaperPixel(x: Int, y: Int): Boolean {
+            val l = lumAt(x, y)
+            return if (paperIsBrighter) l >= threshold else l <= threshold
+        }
+
+        val maxScanInwardX = (gridW * 0.45f).toInt()
+        val maxScanInwardY = (gridH * 0.45f).toInt()
+        val sampleMinX = (gridW * 0.18f).toInt()
+        val sampleMaxX = (gridW * 0.82f).toInt()
+        val sampleSpanX = (sampleMaxX - sampleMinX + 1).coerceAtLeast(1)
+
+        val sampleMinY = (gridH * 0.18f).toInt()
+        val sampleMaxY = (gridH * 0.82f).toInt()
+        val sampleSpanY = (sampleMaxY - sampleMinY + 1).coerceAtLeast(1)
+
+        // Find top edge (scan downwards from y=0 to maxScanInwardY)
         var topEdge = 0
-        for (y in 0 until gridH / 3) {
-            var brightCount = 0
-            for (x in gridW / 6 until gridW * 5 / 6) {
-                if (lumAt(x, y) >= threshold) brightCount++
+        for (y in 0..maxScanInwardY) {
+            var paperCount = 0
+            for (x in sampleMinX..sampleMaxX) {
+                if (isPaperPixel(x, y)) paperCount++
             }
-            if (brightCount > (gridW * 2 / 6)) {
+            if (paperCount.toFloat() / sampleSpanX >= 0.55f) {
                 topEdge = y
                 break
             }
         }
 
+        // Find bottom edge (scan upwards from y=gridH-1 down to gridH - maxScanInwardY)
         var bottomEdge = gridH - 1
-        for (y in (gridH - 1) downTo (gridH * 2 / 3)) {
-            var brightCount = 0
-            for (x in gridW / 6 until gridW * 5 / 6) {
-                if (lumAt(x, y) >= threshold) brightCount++
+        for (y in (gridH - 1) downTo (gridH - maxScanInwardY)) {
+            var paperCount = 0
+            for (x in sampleMinX..sampleMaxX) {
+                if (isPaperPixel(x, y)) paperCount++
             }
-            if (brightCount > (gridW * 2 / 6)) {
+            if (paperCount.toFloat() / sampleSpanX >= 0.55f) {
                 bottomEdge = y
                 break
             }
         }
 
+        // Find left edge (scan rightwards from x=0 to maxScanInwardX)
         var leftEdge = 0
-        for (x in 0 until gridW / 3) {
-            var brightCount = 0
-            for (y in gridH / 6 until gridH * 5 / 6) {
-                if (lumAt(x, y) >= threshold) brightCount++
+        for (x in 0..maxScanInwardX) {
+            var paperCount = 0
+            for (y in sampleMinY..sampleMaxY) {
+                if (isPaperPixel(x, y)) paperCount++
             }
-            if (brightCount > (gridH * 2 / 6)) {
+            if (paperCount.toFloat() / sampleSpanY >= 0.55f) {
                 leftEdge = x
                 break
             }
         }
 
+        // Find right edge (scan leftwards from x=gridW-1 down to gridW - maxScanInwardX)
         var rightEdge = gridW - 1
-        for (x in (gridW - 1) downTo (gridW * 2 / 3)) {
-            var brightCount = 0
-            for (y in gridH / 6 until gridH * 5 / 6) {
-                if (lumAt(x, y) >= threshold) brightCount++
+        for (x in (gridW - 1) downTo (gridW - maxScanInwardX)) {
+            var paperCount = 0
+            for (y in sampleMinY..sampleMaxY) {
+                if (isPaperPixel(x, y)) paperCount++
             }
-            if (brightCount > (gridH * 2 / 6)) {
+            if (paperCount.toFloat() / sampleSpanY >= 0.55f) {
                 rightEdge = x
                 break
             }
         }
 
+        // If detected boundaries collapsed or inverted, return full frame
+        if (rightEdge <= leftEdge + (gridW * 0.2f) || bottomEdge <= topEdge + (gridH * 0.2f)) {
+            return NormalizedRect()
+        }
+
+        // Convert to normalized coordinates (0f .. 1f)
+        val rawLeft = leftEdge.toFloat() / gridW
+        val rawTop = topEdge.toFloat() / gridH
+        val rawRight = (rightEdge + 1).toFloat() / gridW
+        val rawBottom = (bottomEdge + 1).toFloat() / gridH
+
+        // If document already fills > 96% of the screen horizontally and vertically, no crop needed
+        if (rawLeft <= 0.02f && rawTop <= 0.02f && rawRight >= 0.98f && rawBottom >= 0.98f) {
+            return NormalizedRect()
+        }
+
+        // Add 1.2% safety margin padding so text right next to page edge isn't cut off
+        val padX = 0.012f
+        val padY = 0.012f
+        val finalLeft = (rawLeft - padX).coerceIn(0f, 0.45f)
+        val finalTop = (rawTop - padY).coerceIn(0f, 0.45f)
+        val finalRight = (rawRight + padX).coerceIn(0.55f, 1f)
+        val finalBottom = (rawBottom + padY).coerceIn(0.55f, 1f)
+
         return NormalizedRect(
-            left = (leftEdge.toFloat() / gridW).coerceIn(0f, 0.25f),
-            top = (topEdge.toFloat() / gridH).coerceIn(0f, 0.25f),
-            right = ((rightEdge + 1).toFloat() / gridW).coerceIn(0.75f, 1f),
-            bottom = ((bottomEdge + 1).toFloat() / gridH).coerceIn(0.75f, 1f)
+            left = finalLeft,
+            top = finalTop,
+            right = finalRight,
+            bottom = finalBottom
         ).coerced()
     }
 

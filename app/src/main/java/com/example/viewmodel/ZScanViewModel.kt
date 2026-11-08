@@ -247,15 +247,26 @@ class ZScanViewModel(
         }
     }
 
+    fun setAutoCropPaper(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesRepository.setAutoCropPaper(enabled)
+        }
+    }
+
     // Camera & Image Import Actions
-    fun onCameraPhotoCaptured(rawFile: File, onPageReady: (ScanDraftPage) -> Unit = {}) {
+    fun onCameraPhotoCaptured(
+        rawFile: File,
+        autoCropOverride: Boolean? = null,
+        onPageReady: (ScanDraftPage) -> Unit = {}
+    ) {
         viewModelScope.launch {
             _studioState.update { it.copy(isProcessingImages = true) }
             val workspace = documentRepository.getWorkingScanCacheDirectory()
+            val shouldAutoCrop = autoCropOverride ?: userSettings.value.autoCropPaper
             val result = ImageProcessor.createScanPageFromCameraFile(
                 rawCameraFile = rawFile,
                 workspaceDir = workspace,
-                autoDetectEdges = true
+                autoDetectEdges = shouldAutoCrop
             )
             result.onSuccess { newPage ->
                 _studioState.update { state ->
@@ -295,7 +306,7 @@ class ZScanViewModel(
                     context = getApplication(),
                     uri = uri,
                     workspaceDir = workspace,
-                    autoDetectEdges = false
+                    autoDetectEdges = userSettings.value.autoCropPaper
                 )
                 res.onSuccess { importedPages.add(it) }
                     .onFailure { failedCount++ }
