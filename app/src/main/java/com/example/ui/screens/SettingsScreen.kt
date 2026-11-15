@@ -59,7 +59,6 @@ import com.example.R
 import com.example.data.StorageUsageStats
 import com.example.ui.components.ZScanBrandLogo
 import com.example.ui.theme.AppThemeMode
-import com.example.ui.theme.NeonRose
 import com.example.util.DocumentFormatters
 
 @Composable
@@ -109,7 +108,7 @@ fun SettingsScreen(
                 SettingsSectionCard(title = "Appearance") {
                     ThemeOptionRow(
                         title = "Light Mode",
-                        subtitle = "Bright, clean surfaces with high-contrast dark text",
+                        subtitle = "Pearl White (#F8F7FC) with Royal Purple (#7040B8) accents",
                         icon = Icons.Default.LightMode,
                         selected = currentThemeMode == AppThemeMode.LIGHT,
                         onClick = { onThemeModeSelected(AppThemeMode.LIGHT) },
@@ -117,7 +116,7 @@ fun SettingsScreen(
                     )
                     ThemeOptionRow(
                         title = "Dark Mode",
-                        subtitle = "Jet Black (#0A0A0A) canvas with Cerulean & Neon Rose accents",
+                        subtitle = "Deep Black (#090611) with Electric Violet & Purple Aurora",
                         icon = Icons.Default.DarkMode,
                         selected = currentThemeMode == AppThemeMode.DARK,
                         onClick = { onThemeModeSelected(AppThemeMode.DARK) },
@@ -276,7 +275,7 @@ fun SettingsScreen(
                             Text(
                                 text = "Version ${stringResource(R.string.app_version)} (Release Build)",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = NeonRose,
+                                color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(

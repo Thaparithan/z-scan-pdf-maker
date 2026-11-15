@@ -82,7 +82,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.data.DocumentEntity
 import com.example.processing.PdfViewerSession
-import com.example.ui.theme.NeonRose
 import com.example.util.DocumentFormatters
 import kotlinx.coroutines.launch
 import java.io.File
@@ -501,7 +500,7 @@ fun PdfViewerScreen(
                                 Text(
                                     text = "${(zoomScale * 100).roundToInt()}%",
                                     style = MaterialTheme.typography.labelMedium,
-                                    color = if (zoomScale > 1.01f) NeonRose else MaterialTheme.colorScheme.onSurface
+                                    color = if (zoomScale > 1.01f) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                                 )
 
                                 // Zoom In

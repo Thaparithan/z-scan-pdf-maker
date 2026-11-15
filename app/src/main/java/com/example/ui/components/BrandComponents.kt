@@ -32,15 +32,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.R
-import com.example.ui.theme.CeruleanBlue
-import com.example.ui.theme.CeruleanPrimaryDark
-import com.example.ui.theme.JetBlack
-import com.example.ui.theme.NeonRose
+import com.example.ui.theme.ElectricViolet
+import com.example.ui.theme.PrimaryPurple
+import com.example.ui.theme.SoftLavender
 
 /**
- * Official Z Scan: PDF Maker vector brand mark.
- * Combines a modern document silhouette, scanner corner frame,
- * integrated geometric 'Z', and Neon Rose scanning laser line.
+ * Official Z Scan: PDF Maker brand mark.
+ * Renders the circular luxury emblem with subtle animated electric violet laser sweep.
  */
 @Composable
 fun ZScanBrandLogo(
@@ -50,10 +48,10 @@ fun ZScanBrandLogo(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "zscan_logo_anim")
     val scanProgress by infiniteTransition.animateFloat(
-        initialValue = 0.22f,
-        targetValue = 0.78f,
+        initialValue = 0.20f,
+        targetValue = 0.80f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2000, easing = FastOutSlowInEasing),
+            animation = tween(durationMillis = 2200, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "scan_line_y"
@@ -71,7 +69,7 @@ fun ZScanBrandLogo(
             contentScale = ContentScale.Fit,
             modifier = Modifier
                 .size(size)
-                .clip(RoundedCornerShape(size * 0.24f))
+                .clip(RoundedCornerShape(size * 0.28f))
         )
 
         if (animatedScanLine) {
@@ -81,14 +79,14 @@ fun ZScanBrandLogo(
                 val scanY = h * scanProgress
 
                 drawLine(
-                    color = NeonRose.copy(alpha = 0.35f),
+                    color = ElectricViolet.copy(alpha = 0.35f),
                     start = Offset(w * 0.12f, scanY),
                     end = Offset(w * 0.88f, scanY),
                     strokeWidth = w * 0.08f,
                     cap = StrokeCap.Round
                 )
                 drawLine(
-                    color = NeonRose,
+                    color = ElectricViolet,
                     start = Offset(w * 0.14f, scanY),
                     end = Offset(w * 0.86f, scanY),
                     strokeWidth = w * 0.035f,
@@ -100,7 +98,8 @@ fun ZScanBrandLogo(
 }
 
 /**
- * Custom illustration for the Home Screen primary Scan Document hero card.
+ * Custom illustration for the Home Screen primary Scan Document hero card
+ * featuring the signature Purple Aurora ambient glow.
  */
 @Composable
 fun ScannerHeroIllustration(
@@ -109,10 +108,10 @@ fun ScannerHeroIllustration(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "scanner_hero_beam")
     val beamRatio by infiniteTransition.animateFloat(
-        initialValue = 0.28f,
-        targetValue = 0.72f,
+        initialValue = 0.26f,
+        targetValue = 0.74f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2200, easing = FastOutSlowInEasing),
+            animation = tween(durationMillis = 2400, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "beam_y"
@@ -126,22 +125,22 @@ fun ScannerHeroIllustration(
         val w = this.size.width
         val h = this.size.height
 
-        // Ambient glow circle
+        // Aurora Ambient glow circle
         drawCircle(
             brush = Brush.radialGradient(
                 colors = listOf(
-                    Color.White.copy(alpha = 0.22f),
-                    NeonRose.copy(alpha = 0.12f),
+                    ElectricViolet.copy(alpha = 0.28f),
+                    PrimaryPurple.copy(alpha = 0.18f),
                     Color.Transparent
                 )
             ),
-            radius = w * 0.48f,
+            radius = w * 0.50f,
             center = Offset(w * 0.5f, h * 0.5f)
         )
 
         // Tilted back sheet
         drawRoundRect(
-            color = Color.White.copy(alpha = 0.25f),
+            color = SoftLavender.copy(alpha = 0.22f),
             topLeft = Offset(w * 0.26f, h * 0.14f),
             size = Size(w * 0.52f, h * 0.68f),
             cornerRadius = CornerRadius(w * 0.06f, w * 0.06f)
@@ -159,11 +158,11 @@ fun ScannerHeroIllustration(
             cornerRadius = CornerRadius(w * 0.06f, w * 0.06f)
         )
 
-        // Document text lines & PDF badge hint
+        // Document text lines
         val lineLeft = docLeft + docW * 0.16f
         val lineRight = docLeft + docW * 0.84f
         drawLine(
-            color = CeruleanBlue,
+            color = PrimaryPurple,
             start = Offset(lineLeft, docTop + docH * 0.22f),
             end = Offset(docLeft + docW * 0.55f, docTop + docH * 0.22f),
             strokeWidth = w * 0.045f,
@@ -172,7 +171,7 @@ fun ScannerHeroIllustration(
         for (i in 1..3) {
             val y = docTop + docH * (0.28f + i * 0.14f)
             drawLine(
-                color = Color(0xFF94A3B8),
+                color = Color(0xFFCBD5E1),
                 start = Offset(lineLeft, y),
                 end = Offset(if (i == 3) docLeft + docW * 0.65f else lineRight, y),
                 strokeWidth = w * 0.032f,
@@ -205,19 +204,19 @@ fun ScannerHeroIllustration(
             lineTo(bRight, bBot)
             lineTo(bRight, bBot - bArm)
         }
-        drawPath(brackets, color = Color(0xFF7DD3FC), style = bracketStroke)
+        drawPath(brackets, color = SoftLavender, style = bracketStroke)
 
-        // Neon Rose laser scan line
+        // Electric Violet laser scan line
         val scanY = h * beamRatio
         drawLine(
-            color = NeonRose.copy(alpha = 0.35f),
+            color = ElectricViolet.copy(alpha = 0.35f),
             start = Offset(bLeft - w * 0.02f, scanY),
             end = Offset(bRight + w * 0.02f, scanY),
             strokeWidth = w * 0.08f,
             cap = StrokeCap.Round
         )
         drawLine(
-            color = NeonRose,
+            color = ElectricViolet,
             start = Offset(bLeft, scanY),
             end = Offset(bRight, scanY),
             strokeWidth = w * 0.035f,
@@ -242,21 +241,21 @@ fun EmptyDocumentsIllustration(
         val w = this.size.width
         val h = this.size.height
 
-        // Soft circular backdrop
+        // Soft circular backdrop in Aurora violet
         drawCircle(
-            color = CeruleanBlue.copy(alpha = 0.10f),
+            color = PrimaryPurple.copy(alpha = 0.12f),
             radius = w * 0.44f,
             center = Offset(w * 0.5f, h * 0.52f)
         )
         drawCircle(
-            color = NeonRose.copy(alpha = 0.08f),
+            color = ElectricViolet.copy(alpha = 0.10f),
             radius = w * 0.28f,
             center = Offset(w * 0.64f, h * 0.38f)
         )
 
         // Back Folder Tab
         drawRoundRect(
-            color = CeruleanBlue.copy(alpha = 0.32f),
+            color = PrimaryPurple.copy(alpha = 0.32f),
             topLeft = Offset(w * 0.20f, h * 0.34f),
             size = Size(w * 0.56f, h * 0.46f),
             cornerRadius = CornerRadius(w * 0.06f, w * 0.06f)
@@ -275,7 +274,7 @@ fun EmptyDocumentsIllustration(
             cornerRadius = CornerRadius(w * 0.05f, w * 0.05f)
         )
         drawRoundRect(
-            color = CeruleanBlue.copy(alpha = 0.45f),
+            color = PrimaryPurple.copy(alpha = 0.45f),
             topLeft = Offset(pageLeft, pageTop),
             size = Size(pageW, pageH),
             cornerRadius = CornerRadius(w * 0.05f, w * 0.05f),
@@ -286,39 +285,28 @@ fun EmptyDocumentsIllustration(
         val lineStart = pageLeft + pageW * 0.18f
         val lineEnd = pageLeft + pageW * 0.82f
         drawLine(
-            color = CeruleanBlue,
+            color = PrimaryPurple,
             start = Offset(lineStart, pageTop + pageH * 0.24f),
             end = Offset(pageLeft + pageW * 0.58f, pageTop + pageH * 0.24f),
             strokeWidth = w * 0.035f,
             cap = StrokeCap.Round
         )
-        drawLine(
-            color = Color(0xFFCBD5E1),
-            start = Offset(lineStart, pageTop + pageH * 0.42f),
-            end = Offset(lineEnd, pageTop + pageH * 0.42f),
-            strokeWidth = w * 0.028f,
-            cap = StrokeCap.Round
-        )
-        drawLine(
-            color = Color(0xFFCBD5E1),
-            start = Offset(lineStart, pageTop + pageH * 0.56f),
-            end = Offset(lineEnd, pageTop + pageH * 0.56f),
-            strokeWidth = w * 0.028f,
-            cap = StrokeCap.Round
-        )
-        drawLine(
-            color = Color(0xFFCBD5E1),
-            start = Offset(lineStart, pageTop + pageH * 0.70f),
-            end = Offset(pageLeft + pageW * 0.62f, pageTop + pageH * 0.70f),
-            strokeWidth = w * 0.028f,
-            cap = StrokeCap.Round
-        )
+        for (i in 1..3) {
+            val y = pageTop + pageH * (0.38f + i * 0.14f)
+            drawLine(
+                color = Color(0xFFCBD5E1),
+                start = Offset(lineStart, y),
+                end = Offset(if (i == 3) pageLeft + pageW * 0.62f else lineEnd, y),
+                strokeWidth = w * 0.028f,
+                cap = StrokeCap.Round
+            )
+        }
 
-        // Neon Rose Plus / Scan Badge at bottom-right
+        // Electric Violet Scan Badge at bottom-right
         val badgeCenter = Offset(w * 0.70f, h * 0.72f)
         val badgeRadius = w * 0.13f
         drawCircle(
-            color = NeonRose,
+            color = ElectricViolet,
             radius = badgeRadius,
             center = badgeCenter
         )

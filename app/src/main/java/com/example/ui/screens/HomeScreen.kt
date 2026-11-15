@@ -22,9 +22,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.DocumentScanner
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.PhotoLibrary
@@ -61,9 +61,10 @@ import com.example.data.DocumentEntity
 import com.example.ui.components.EmptyDocumentsIllustration
 import com.example.ui.components.ScannerHeroIllustration
 import com.example.ui.components.ZScanBrandLogo
-import com.example.ui.theme.CeruleanBlue
-import com.example.ui.theme.JetBlack
-import com.example.ui.theme.NeonRose
+import com.example.ui.theme.ElectricViolet
+import com.example.ui.theme.PrimaryPurple
+import com.example.ui.theme.SoftLavender
+import com.example.ui.theme.auroraLinearGradient
 import com.example.util.DocumentFormatters
 import java.io.File
 
@@ -137,7 +138,7 @@ fun HomeScreen(
                             title = stringResource(R.string.create_pdf),
                             subtitle = if (draftPageCount > 0) "$draftPageCount page(s) ready" else "Page studio",
                             icon = Icons.Default.PictureAsPdf,
-                            accentColor = NeonRose,
+                            accentColor = MaterialTheme.colorScheme.primary,
                             onClick = onCreatePdfClick,
                             testTag = "create_pdf_button",
                             modifier = Modifier.weight(1f)
@@ -271,13 +272,14 @@ private fun HomeHeader(onSettingsClick: () -> Unit) {
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Surface(
-                        color = NeonRose.copy(alpha = 0.14f),
-                        shape = RoundedCornerShape(6.dp)
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
+                        shape = RoundedCornerShape(6.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f))
                     ) {
                         Text(
                             text = "v2.0.0 | ZYNOR.TA",
                             style = MaterialTheme.typography.labelSmall,
-                            color = NeonRose,
+                            color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
@@ -365,10 +367,16 @@ private fun MainScanHeroCard(
     onScanClick: () -> Unit,
     onAutoEdgeScanClick: () -> Unit
 ) {
+    val isDark = MaterialTheme.colorScheme.background.red < 0.5f
+
     Card(
         onClick = onAutoEdgeScanClick,
         shape = RoundedCornerShape(24.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            if (isDark) Color(0xFF30283D) else Color(0xFFE5DFEE)
+        ),
         modifier = Modifier
             .fillMaxWidth()
             .testTag("scan_document_button")
@@ -377,13 +385,23 @@ private fun MainScanHeroCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            JetBlack,
-                            Color(0xFF062C3E),
-                            CeruleanBlue
+                    brush = if (isDark) {
+                        Brush.linearGradient(
+                            colors = listOf(
+                                Color(0xFF171321),
+                                Color(0xFF21103D),
+                                Color(0xFF482276)
+                            )
                         )
-                    )
+                    } else {
+                        Brush.linearGradient(
+                            colors = listOf(
+                                Color(0xFFFFFFFF),
+                                Color(0xFFF5F1FA),
+                                Color(0xFFE8DDFB)
+                            )
+                        )
+                    }
                 )
                 .padding(20.dp)
         ) {
@@ -397,13 +415,14 @@ private fun MainScanHeroCard(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Surface(
-                        color = NeonRose,
-                        shape = RoundedCornerShape(50)
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f),
+                        shape = RoundedCornerShape(50),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f))
                     ) {
                         Text(
                             text = "SMART & OFFLINE SCANNER",
                             style = MaterialTheme.typography.labelSmall,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                         )
@@ -412,51 +431,56 @@ private fun MainScanHeroCard(
                     Text(
                         text = stringResource(R.string.scan_document),
                         style = MaterialTheme.typography.headlineMedium,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
                     )
 
                     Text(
-                        text = "Auto-edge detection, quadrilateral crop & crisp PDFs",
+                        text = "Auto-detect paper boundaries, perspective crop & build crisp PDFs",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.88f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
 
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        // Button 1: Auto-Edge Scan with distinctive DocumentScanner framing symbol
                         Surface(
                             onClick = onAutoEdgeScanClick,
-                            color = NeonRose,
+                            color = MaterialTheme.colorScheme.primary,
                             shape = RoundedCornerShape(14.dp),
+                            shadowElevation = 3.dp,
                             modifier = Modifier.testTag("auto_edge_scan_button")
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.AutoAwesome,
-                                    contentDescription = null,
-                                    tint = Color.White,
+                                    imageVector = Icons.Default.DocumentScanner,
+                                    contentDescription = "Auto-Edge Scan",
+                                    tint = MaterialTheme.colorScheme.onPrimary,
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Text(
-                                    text = "Auto-Edge",
+                                    text = "Auto-Edge Scan",
                                     style = MaterialTheme.typography.labelLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
                         }
 
+                        // Button 2: Camera Scan
                         Surface(
                             onClick = onScanClick,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.surfaceVariant,
                             shape = RoundedCornerShape(14.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                             modifier = Modifier.testTag("camera_scan_button")
                         ) {
                             Row(
@@ -466,14 +490,15 @@ private fun MainScanHeroCard(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.CameraAlt,
-                                    contentDescription = null,
-                                    tint = CeruleanBlue,
+                                    contentDescription = "Camera",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Text(
                                     text = "Camera",
                                     style = MaterialTheme.typography.labelLarge,
-                                    color = JetBlack
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontWeight = FontWeight.Medium
                                 )
                             }
                         }
@@ -687,13 +712,13 @@ fun RecentDocumentRowCard(
                         )
                     }
                     Surface(
-                        color = NeonRose.copy(alpha = 0.12f),
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.16f),
                         shape = RoundedCornerShape(6.dp)
                     ) {
                         Text(
                             text = "PDF • ${DocumentFormatters.formatFileSize(document.fileSizeBytes)}",
                             style = MaterialTheme.typography.labelSmall,
-                            color = NeonRose,
+                            color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
@@ -744,13 +769,13 @@ fun DocumentThumbnailBox(
             Icon(
                 imageVector = Icons.Default.PictureAsPdf,
                 contentDescription = "PDF Document",
-                tint = CeruleanBlue,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(28.dp)
             )
         }
         // Subtle PDF Corner Tag
         Surface(
-            color = NeonRose,
+            color = MaterialTheme.colorScheme.primary,
             shape = RoundedCornerShape(topStart = 6.dp),
             modifier = Modifier.align(Alignment.BottomEnd)
         ) {

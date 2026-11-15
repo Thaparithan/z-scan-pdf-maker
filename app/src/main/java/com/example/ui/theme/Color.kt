@@ -1,54 +1,82 @@
 package com.example.ui.theme
 
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
-// Approved Core Brand Palette
-val JetBlack = Color(0xFF0A0A0A)
-val CeruleanBlue = Color(0xFF007BA7)
-val NeonRose = Color(0xFFFF2D95)
+// =========================================================================
+// Z-SCAN — PREMIUM THEME DESIGN SYSTEM (BLACK + ROYAL PURPLE & AURORA)
+// =========================================================================
 
-// Light Mode Palette
-val CeruleanPrimaryLight = Color(0xFF007BA7)
-val OnCeruleanPrimaryLight = Color(0xFFFFFFFF)
-val CeruleanContainerLight = Color(0xFFD6F0FA)
-val OnCeruleanContainerLight = Color(0xFF002636)
+// 1. DARK MODE — BLACK + PURPLE
+val DarkPrimaryBackground = Color(0xFF090611)
+val DarkSecondaryBackground = Color(0xFF100D19)
+val DarkCardBackground = Color(0xFF171321)
+val DarkElevatedSurface = Color(0xFF211B30)
+val DarkPrimaryPurple = Color(0xFF7040B8)
+val DarkElectricViolet = Color(0xFFA477FF)
+val DarkSoftLavender = Color(0xFFD4C4FF)
+val DarkPrimaryText = Color(0xFFF8F7FC)
+val DarkSecondaryText = Color(0xFFAFA8BE)
+val DarkMutedText = Color(0xFF777185)
+val DarkBorder = Color(0xFF30283D)
 
-val NeonRoseSecondaryLight = Color(0xFFD81B7A)
-val OnNeonRoseSecondaryLight = Color(0xFFFFFFFF)
-val NeonRoseContainerLight = Color(0xFFFFD8E8)
-val OnNeonRoseContainerLight = Color(0xFF3E001E)
+// 2. LIGHT MODE — PEARL WHITE + ROYAL PURPLE
+val LightPrimaryBackground = Color(0xFFF8F7FC)
+val LightSecondaryBackground = Color(0xFFF0EDF6)
+val LightCardBackground = Color(0xFFFFFFFF)
+val LightElevatedSurface = Color(0xFFF5F1FA)
+val LightPrimaryPurple = Color(0xFF7040B8)
+val LightDeepPurple = Color(0xFF57318F)
+val LightAccentViolet = Color(0xFF8B63D9)
+val LightSoftLavender = Color(0xFFE8DDFB)
+val LightPrimaryText = Color(0xFF171321)
+val LightSecondaryText = Color(0xFF6F687B)
+val LightMutedText = Color(0xFF9992A4)
+val LightBorder = Color(0xFFE5DFEE)
 
-val LightBackground = Color(0xFFF7F9FC)
-val LightSurface = Color(0xFFFFFFFF)
-val LightSurfaceVariant = Color(0xFFEEF3F8)
-val LightOnBackground = Color(0xFF0F172A)
-val LightOnSurface = Color(0xFF0F172A)
-val LightOnSurfaceVariant = Color(0xFF475569)
-val LightOutline = Color(0xFFCBD5E1)
-val LightOutlineVariant = Color(0xFFE2E8F0)
+// Core Named Aliases for Cross-Component Consistency
+val PrimaryPurple = Color(0xFF7040B8)
+val ElectricViolet = Color(0xFFA477FF)
+val SoftLavender = Color(0xFFD4C4FF)
+val DeepPurple = Color(0xFF57318F)
+val AccentViolet = Color(0xFF8B63D9)
 
-// Dark Mode Palette (Anchored on Jet Black #0A0A0A)
-val CeruleanPrimaryDark = Color(0xFF38BDF8)
-val OnCeruleanPrimaryDark = Color(0xFF002636)
-val CeruleanContainerDark = Color(0xFF004F6E)
-val OnCeruleanContainerDark = Color(0xFFD6F0FA)
-
-val NeonRoseSecondaryDark = Color(0xFFFF2D95)
-val OnNeonRoseSecondaryDark = Color(0xFF450023)
-val NeonRoseContainerDark = Color(0xFF630034)
-val OnNeonRoseContainerDark = Color(0xFFFFD8E8)
-
-val DarkBackground = Color(0xFF0A0A0A)
-val DarkSurface = Color(0xFF13171D)
-val DarkSurfaceVariant = Color(0xFF1C222B)
-val DarkOnBackground = Color(0xFFF8FAFC)
-val DarkOnSurface = Color(0xFFF8FAFC)
-val DarkOnSurfaceVariant = Color(0xFF94A3B8)
-val DarkOutline = Color(0xFF334155)
-val DarkOutlineVariant = Color(0xFF1E293B)
+// Backwards-compatible aliases mapping to new luxury palette (No Red!)
+val JetBlack = DarkPrimaryBackground
+val CeruleanBlue = ElectricViolet
+val NeonRose = ElectricViolet
+val CeruleanPrimaryDark = ElectricViolet
+val CeruleanPrimaryLight = PrimaryPurple
+val CeruleanContainerDark = DarkElevatedSurface
+val CeruleanContainerLight = LightSoftLavender
 
 // Semantic Status Colors
 val SuccessGreen = Color(0xFF10B981)
 val WarningAmber = Color(0xFFF59E0B)
-val ErrorRedLight = Color(0xFFDC2626)
-val ErrorRedDark = Color(0xFFF87171)
+val ErrorRedLight = Color(0xFFE11D48)
+val ErrorRedDark = Color(0xFFFB7185)
+
+// 3. AURORA EFFECTS — SIGNATURE VISUAL IDENTITY
+val AuroraDarkColors = listOf(
+    Color(0xFF21103D),
+    Color(0xFF482276),
+    Color(0xFF7040B8),
+    Color(0xFFA477FF)
+)
+
+val AuroraLightColors = listOf(
+    Color(0xFFE8DDFB),
+    Color(0xFFD6C5FA),
+    Color(0xFFB99AF2),
+    Color(0xFF8B63D9)
+)
+
+fun auroraLinearGradient(isDark: Boolean): Brush = Brush.linearGradient(
+    colors = if (isDark) AuroraDarkColors else AuroraLightColors
+)
+
+fun auroraRadialGradient(isDark: Boolean, radius: Float = 600f): Brush = Brush.radialGradient(
+    colors = if (isDark) listOf(Color(0xFF7040B8).copy(alpha = 0.45f), Color(0xFF482276).copy(alpha = 0.20f), Color.Transparent)
+             else listOf(Color(0xFFB99AF2).copy(alpha = 0.55f), Color(0xFFE8DDFB).copy(alpha = 0.25f), Color.Transparent),
+    radius = radius
+)

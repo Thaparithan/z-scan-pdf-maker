@@ -49,6 +49,7 @@ import androidx.compose.material.icons.filled.Cameraswitch
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Crop
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.DocumentScanner
 import androidx.compose.material.icons.filled.FlashOff
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.PhotoLibrary
@@ -95,10 +96,10 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
 import com.example.processing.ImageProcessor
 import com.example.processing.ScanDraftPage
-import com.example.ui.theme.CeruleanBlue
-import com.example.ui.theme.CeruleanPrimaryDark
-import com.example.ui.theme.JetBlack
-import com.example.ui.theme.NeonRose
+import com.example.ui.theme.DarkPrimaryBackground
+import com.example.ui.theme.ElectricViolet
+import com.example.ui.theme.PrimaryPurple
+import com.example.ui.theme.SoftLavender
 import com.example.ui.theme.SuccessGreen
 import kotlinx.coroutines.delay
 import java.io.File
@@ -153,7 +154,7 @@ fun CameraScannerScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(JetBlack)
+            .background(DarkPrimaryBackground)
             .testTag("camera_scanner_screen")
     ) {
         if (previewedPage != null) {
@@ -438,7 +439,7 @@ private fun LiveCameraScannerContent(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
-                    .background(JetBlack.copy(alpha = 0.65f))
+                    .background(DarkPrimaryBackground.copy(alpha = 0.65f))
                     .testTag("scanner_back_button")
             ) {
                 Icon(
@@ -456,7 +457,7 @@ private fun LiveCameraScannerContent(
                 Surface(
                     onClick = { autoCaptureEnabled = !autoCaptureEnabled },
                     shape = RoundedCornerShape(50),
-                    color = if (autoCaptureEnabled) CeruleanBlue else JetBlack.copy(alpha = 0.68f),
+                    color = if (autoCaptureEnabled) ElectricViolet else DarkPrimaryBackground.copy(alpha = 0.68f),
                     modifier = Modifier.testTag("auto_capture_toggle")
                 ) {
                     Row(
@@ -467,7 +468,7 @@ private fun LiveCameraScannerContent(
                         Icon(
                             imageVector = Icons.Default.AutoAwesome,
                             contentDescription = null,
-                            tint = if (autoCaptureEnabled) Color.White else CeruleanPrimaryDark,
+                            tint = if (autoCaptureEnabled) DarkPrimaryBackground else SoftLavender,
                             modifier = Modifier.size(15.dp)
                         )
                         Text(
@@ -486,7 +487,7 @@ private fun LiveCameraScannerContent(
                         onAutoCropToggled?.invoke(next)
                     },
                     shape = RoundedCornerShape(50),
-                    color = if (autoCropPaperEnabled) SuccessGreen.copy(alpha = 0.88f) else JetBlack.copy(alpha = 0.68f),
+                    color = if (autoCropPaperEnabled) SuccessGreen.copy(alpha = 0.88f) else DarkPrimaryBackground.copy(alpha = 0.68f),
                     modifier = Modifier.testTag("auto_crop_paper_toggle")
                 ) {
                     Row(
@@ -509,30 +510,30 @@ private fun LiveCameraScannerContent(
                     }
                 }
 
-                // ML Kit Auto-Edge Scan Trigger Button
+                // Auto-Edge Scan Trigger Button (No "ML Kit" text, distinctive DocumentScanner symbol)
                 if (onAutoEdgeScanClick != null) {
                     Surface(
                         onClick = onAutoEdgeScanClick,
                         shape = RoundedCornerShape(50),
-                        color = NeonRose,
+                        color = ElectricViolet,
                         modifier = Modifier.testTag("scanner_auto_edge_button")
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                            modifier = Modifier.padding(horizontal = 11.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(5.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.AutoAwesome,
-                                contentDescription = "Launch ML Kit Auto-Edge Scanner",
-                                tint = Color.White,
+                                imageVector = Icons.Default.DocumentScanner,
+                                contentDescription = "Launch Auto-Edge Scanner",
+                                tint = DarkPrimaryBackground,
                                 modifier = Modifier.size(15.dp)
                             )
                             Text(
                                 text = "Auto-Edge",
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = DarkPrimaryBackground
                             )
                         }
                     }
@@ -550,7 +551,7 @@ private fun LiveCameraScannerContent(
                         modifier = Modifier
                             .size(44.dp)
                             .clip(CircleShape)
-                            .background(if (torchEnabled) NeonRose else JetBlack.copy(alpha = 0.65f))
+                            .background(if (torchEnabled) ElectricViolet else DarkPrimaryBackground.copy(alpha = 0.65f))
                             .testTag("scanner_torch_button")
                     ) {
                         Icon(
@@ -573,7 +574,7 @@ private fun LiveCameraScannerContent(
                         modifier = Modifier
                             .size(44.dp)
                             .clip(CircleShape)
-                            .background(JetBlack.copy(alpha = 0.65f))
+                            .background(DarkPrimaryBackground.copy(alpha = 0.65f))
                             .testTag("scanner_switch_camera_button")
                     ) {
                         Icon(
@@ -595,7 +596,7 @@ private fun LiveCameraScannerContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Surface(
-                color = JetBlack.copy(alpha = 0.72f),
+                color = DarkPrimaryBackground.copy(alpha = 0.72f),
                 shape = RoundedCornerShape(50)
             ) {
                 Text(
@@ -619,7 +620,7 @@ private fun LiveCameraScannerContent(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .background(JetBlack.copy(alpha = 0.86f))
+                .background(DarkPrimaryBackground.copy(alpha = 0.86f))
                 .windowInsetsPadding(WindowInsets.navigationBars)
                 .padding(horizontal = 24.dp, vertical = 18.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -667,7 +668,7 @@ private fun LiveCameraScannerContent(
                         modifier = Modifier
                             .size(76.dp)
                             .clip(CircleShape)
-                            .border(4.dp, CeruleanPrimaryDark, CircleShape)
+                            .border(4.dp, ElectricViolet, CircleShape)
                             .padding(6.dp)
                             .clip(CircleShape)
                             .background(if (isCapturingNow || isProcessing) Color.Gray else Color.White)
@@ -675,7 +676,7 @@ private fun LiveCameraScannerContent(
                     ) {
                         if (isCapturingNow || isProcessing) {
                             CircularProgressIndicator(
-                                color = CeruleanBlue,
+                                color = ElectricViolet,
                                 strokeWidth = 3.dp,
                                 modifier = Modifier.size(28.dp)
                             )
@@ -683,7 +684,7 @@ private fun LiveCameraScannerContent(
                             Icon(
                                 imageVector = Icons.Default.CameraAlt,
                                 contentDescription = "Capture Document Page",
-                                tint = JetBlack,
+                                tint = DarkPrimaryBackground,
                                 modifier = Modifier.size(30.dp)
                             )
                         }
@@ -699,7 +700,7 @@ private fun LiveCameraScannerContent(
                         enabled = capturedPages.isNotEmpty(),
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (capturedPages.isNotEmpty()) NeonRose else Color.White.copy(alpha = 0.14f),
+                            containerColor = if (capturedPages.isNotEmpty()) ElectricViolet else Color.White.copy(alpha = 0.14f),
                             disabledContainerColor = Color.White.copy(alpha = 0.08f)
                         ),
                         modifier = Modifier
@@ -742,7 +743,7 @@ private fun ScannerViewfinderOverlay(
         val bottom = top + frameH
 
         // Subtle frame outline
-        val frameColor = if (isDocumentDetected) SuccessGreen else CeruleanPrimaryDark
+        val frameColor = if (isDocumentDetected) SuccessGreen else ElectricViolet
         drawRoundRect(
             color = frameColor.copy(alpha = 0.45f),
             topLeft = Offset(left, top),
@@ -780,7 +781,7 @@ private fun ScannerViewfinderOverlay(
         if (autoCaptureProgress > 0.05f) {
             val barWidth = frameW * autoCaptureProgress
             drawLine(
-                color = NeonRose,
+                color = ElectricViolet,
                 start = Offset(left, bottom + 14.dp.toPx()),
                 end = Offset(left + barWidth, bottom + 14.dp.toPx()),
                 strokeWidth = 5.dp.toPx(),
@@ -801,7 +802,7 @@ private fun CapturedPageReviewModal(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(JetBlack)
+            .background(DarkPrimaryBackground)
             .windowInsetsPadding(WindowInsets.statusBars)
             .windowInsetsPadding(WindowInsets.navigationBars)
             .padding(20.dp)
@@ -834,13 +835,13 @@ private fun CapturedPageReviewModal(
                     }
                 }
                 Surface(
-                    color = CeruleanBlue.copy(alpha = 0.25f),
+                    color = ElectricViolet.copy(alpha = 0.25f),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
                         text = "Auto-Enhanced",
                         style = MaterialTheme.typography.labelMedium,
-                        color = CeruleanPrimaryDark,
+                        color = ElectricViolet,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                     )
                 }
@@ -893,7 +894,7 @@ private fun CapturedPageReviewModal(
                 Button(
                     onClick = onScanNextPage,
                     shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = CeruleanBlue),
+                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryPurple),
                     modifier = Modifier
                         .weight(1f)
                         .height(52.dp)
@@ -908,7 +909,7 @@ private fun CapturedPageReviewModal(
             Button(
                 onClick = onFinishAndReviewAll,
                 shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = NeonRose),
+                colors = ButtonDefaults.buttonColors(containerColor = ElectricViolet),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(54.dp)
@@ -973,13 +974,13 @@ private fun CameraPermissionFallbackContent(
                 modifier = Modifier
                     .size(72.dp)
                     .clip(CircleShape)
-                    .background(CeruleanBlue.copy(alpha = 0.2f)),
+                    .background(ElectricViolet.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.CameraAlt,
                     contentDescription = null,
-                    tint = CeruleanPrimaryDark,
+                    tint = ElectricViolet,
                     modifier = Modifier.size(36.dp)
                 )
             }
@@ -1003,7 +1004,7 @@ private fun CameraPermissionFallbackContent(
             Button(
                 onClick = onRequestPermission,
                 shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = CeruleanBlue),
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryPurple),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp)
@@ -1035,16 +1036,16 @@ private fun CameraPermissionFallbackContent(
                     .height(52.dp)
                     .testTag("capture_sample_page_button")
             ) {
-                Icon(Icons.Default.Description, contentDescription = null, tint = CeruleanPrimaryDark)
+                Icon(Icons.Default.Description, contentDescription = null, tint = ElectricViolet)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Scan Printable Sample Page", color = CeruleanPrimaryDark)
+                Text("Scan Printable Sample Page", color = ElectricViolet)
             }
 
             AnimatedVisibility(visible = capturedCount > 0) {
                 Button(
                     onClick = onFinishToStudio,
                     shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = NeonRose),
+                    colors = ButtonDefaults.buttonColors(containerColor = ElectricViolet),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp)

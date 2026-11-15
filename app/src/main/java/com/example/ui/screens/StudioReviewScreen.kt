@@ -73,7 +73,6 @@ import com.example.processing.PdfPageSizeOption
 import com.example.processing.PdfQualityOption
 import com.example.processing.ScanDraftPage
 import com.example.ui.components.EmptyDocumentsIllustration
-import com.example.ui.theme.NeonRose
 import com.example.viewmodel.StudioUiState
 import java.io.File
 
@@ -547,7 +546,7 @@ private fun StudioPageReviewCard(
                                 if (!page.cropRect.isFullFrame) append(" • Cropped")
                             },
                             style = MaterialTheme.typography.bodySmall,
-                            color = if (page.hasEdits) NeonRose else MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = if (page.hasEdits) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )

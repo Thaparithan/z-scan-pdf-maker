@@ -76,9 +76,12 @@ import com.example.ui.screens.PageEditorScreen
 import com.example.ui.screens.PdfViewerScreen
 import com.example.ui.screens.SettingsScreen
 import com.example.ui.screens.StudioReviewScreen
-import com.example.ui.theme.JetBlack
-import com.example.ui.theme.NeonRose
+import com.example.ui.theme.DarkElectricViolet
+import com.example.ui.theme.DarkPrimaryBackground
+import com.example.ui.theme.DarkPrimaryPurple
+import com.example.ui.theme.DarkPrimaryText
 import com.example.ui.theme.ZScanTheme
+import com.example.ui.theme.auroraRadialGradient
 import com.example.util.DocumentFormatters
 import com.example.viewmodel.AppScreen
 import com.example.viewmodel.BottomNavTab
@@ -611,34 +614,42 @@ fun ZScanSplashOverlay() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(JetBlack)
+            .background(DarkPrimaryBackground)
             .testTag("splash_screen_overlay"),
         contentAlignment = Alignment.Center
     ) {
+        // Signature Aurora ambient glow
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(auroraRadialGradient(isDark = true, radius = 650f))
+        )
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             ZScanBrandLogo(
-                size = 104.dp,
+                size = 110.dp,
                 animatedScanLine = true
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.White,
+                style = MaterialTheme.typography.headlineLarge,
+                color = DarkPrimaryText,
                 fontWeight = FontWeight.Bold
             )
             Surface(
-                color = NeonRose.copy(alpha = 0.18f),
-                shape = RoundedCornerShape(50)
+                color = DarkPrimaryPurple.copy(alpha = 0.32f),
+                shape = RoundedCornerShape(50),
+                border = androidx.compose.foundation.BorderStroke(1.dp, DarkElectricViolet.copy(alpha = 0.45f))
             ) {
                 Text(
                     text = "VERSION ${stringResource(R.string.app_version)} • OFFLINE PDF STUDIO",
                     style = MaterialTheme.typography.labelMedium,
-                    color = NeonRose,
-                    fontWeight = FontWeight.Bold,
+                    color = DarkElectricViolet,
+                    fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
                 )
             }

@@ -76,7 +76,6 @@ import com.example.data.DocumentEntity
 import com.example.data.DocumentLayoutMode
 import com.example.data.DocumentSortOption
 import com.example.ui.components.EmptyDocumentsIllustration
-import com.example.ui.theme.NeonRose
 import com.example.util.DocumentFormatters
 
 @Composable

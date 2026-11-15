@@ -74,10 +74,9 @@ import com.example.processing.DocumentFilterMode
 import com.example.processing.ImageProcessor
 import com.example.processing.NormalizedRect
 import com.example.processing.ScanDraftPage
-import com.example.ui.theme.CeruleanBlue
-import com.example.ui.theme.CeruleanPrimaryDark
-import com.example.ui.theme.JetBlack
-import com.example.ui.theme.NeonRose
+import com.example.ui.theme.DarkPrimaryBackground
+import com.example.ui.theme.ElectricViolet
+import com.example.ui.theme.PrimaryPurple
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -187,7 +186,7 @@ fun PageEditorScreen(
                         .fillMaxWidth()
                         .height(340.dp)
                         .clip(RoundedCornerShape(18.dp))
-                        .background(JetBlack)
+                        .background(DarkPrimaryBackground)
                         .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(18.dp)),
                     contentAlignment = Alignment.Center
                 ) {
@@ -213,14 +212,14 @@ fun PageEditorScreen(
                             )
                         }
                     } else {
-                        CircularProgressIndicator(color = CeruleanPrimaryDark)
+                        CircularProgressIndicator(color = ElectricViolet)
                     }
 
                     // Before / After Comparison Pill
                     if (!isCropModeActive) {
                         Surface(
                             onClick = { showOriginalComparison = !showOriginalComparison },
-                            color = if (showOriginalComparison) NeonRose else JetBlack.copy(alpha = 0.75f),
+                            color = if (showOriginalComparison) ElectricViolet else DarkPrimaryBackground.copy(alpha = 0.75f),
                             shape = RoundedCornerShape(50),
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
@@ -506,7 +505,7 @@ private fun InteractiveCropCanvas(
 
                 // Crop rectangle border
                 drawRect(
-                    color = CeruleanPrimaryDark,
+                    color = ElectricViolet,
                     topLeft = Offset(leftPx, topPx),
                     size = Size(rightPx - leftPx, bottomPx - topPx),
                     style = Stroke(width = 3.dp.toPx())
@@ -540,7 +539,7 @@ private fun InteractiveCropCanvas(
                 )
                 corners.forEach { pt ->
                     drawCircle(color = Color.White, radius = handleRadius, center = pt)
-                    drawCircle(color = NeonRose, radius = handleRadius * 0.65f, center = pt)
+                    drawCircle(color = ElectricViolet, radius = handleRadius * 0.65f, center = pt)
                 }
             }
         }
