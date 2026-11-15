@@ -277,7 +277,7 @@ private fun HomeHeader(onSettingsClick: () -> Unit) {
                         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f))
                     ) {
                         Text(
-                            text = "v2.0.0 | ZYNOR.TA",
+                            text = "v2.0.0 | T.A",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold,

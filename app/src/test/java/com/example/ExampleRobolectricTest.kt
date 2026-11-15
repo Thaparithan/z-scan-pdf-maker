@@ -62,7 +62,7 @@ class ExampleRobolectricTest {
         val feedbackUrl = context.getString(R.string.feedback_url)
 
         assertEquals("Z Scan: PDF Maker", appName)
-        assertEquals("2.0.0 | ZYNOR.TA", appVersion)
+        assertEquals("2.0.0 | T.A", appVersion)
         assertEquals("https://zynor-view.web.app/", feedbackUrl)
     }
 

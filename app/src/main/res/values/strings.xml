@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Z Scan: PDF Maker</string>
-    <string name="app_version">2.0.0 | ZYNOR.TA</string>
+    <string name="app_version">2.0.0 | T.A</string>
     <string name="welcome_subtitle">Scan, enhance, and create crisp PDFs offline</string>
     <string name="scan_document">Scan Document</string>
     <string name="scan_document_desc">Capture single or multi-page documents with CameraX</string>
