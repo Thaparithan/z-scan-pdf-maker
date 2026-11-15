@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Folder
@@ -71,6 +72,7 @@ fun HomeScreen(
     recentDocuments: List<DocumentEntity>,
     draftPageCount: Int,
     onScanDocumentClick: () -> Unit,
+    onAutoEdgeScanClick: () -> Unit = {},
     onImportImagesClick: () -> Unit,
     onCreatePdfClick: () -> Unit,
     onMyDocumentsClick: () -> Unit,
@@ -109,7 +111,10 @@ fun HomeScreen(
 
             // B. Main Scanning Action Card
             item {
-                MainScanHeroCard(onScanClick = onScanDocumentClick)
+                MainScanHeroCard(
+                    onScanClick = onScanDocumentClick,
+                    onAutoEdgeScanClick = onAutoEdgeScanClick
+                )
             }
 
             // C. Secondary Actions Row
@@ -270,7 +275,7 @@ private fun HomeHeader(onSettingsClick: () -> Unit) {
                         shape = RoundedCornerShape(6.dp)
                     ) {
                         Text(
-                            text = "v2.0",
+                            text = "v2.0.0 | ZYNOR.TA",
                             style = MaterialTheme.typography.labelSmall,
                             color = NeonRose,
                             fontWeight = FontWeight.Bold,
@@ -356,9 +361,12 @@ private fun ActiveDraftBanner(
 }
 
 @Composable
-private fun MainScanHeroCard(onScanClick: () -> Unit) {
+private fun MainScanHeroCard(
+    onScanClick: () -> Unit,
+    onAutoEdgeScanClick: () -> Unit
+) {
     Card(
-        onClick = onScanClick,
+        onClick = onAutoEdgeScanClick,
         shape = RoundedCornerShape(24.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier
@@ -377,7 +385,7 @@ private fun MainScanHeroCard(onScanClick: () -> Unit) {
                         )
                     )
                 )
-                .padding(22.dp)
+                .padding(20.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -393,7 +401,7 @@ private fun MainScanHeroCard(onScanClick: () -> Unit) {
                         shape = RoundedCornerShape(50)
                     ) {
                         Text(
-                            text = "OFFLINE SCANNER",
+                            text = "SMART & OFFLINE SCANNER",
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
@@ -408,33 +416,66 @@ private fun MainScanHeroCard(onScanClick: () -> Unit) {
                     )
 
                     Text(
-                        text = "Auto-enhance pages & build crisp PDFs in seconds",
+                        text = "Auto-edge detection, quadrilateral crop & crisp PDFs",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White.copy(alpha = 0.88f)
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    Surface(
-                        color = Color.White,
-                        shape = RoundedCornerShape(14.dp)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        Surface(
+                            onClick = onAutoEdgeScanClick,
+                            color = NeonRose,
+                            shape = RoundedCornerShape(14.dp),
+                            modifier = Modifier.testTag("auto_edge_scan_button")
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.CameraAlt,
-                                contentDescription = null,
-                                tint = CeruleanBlue,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Text(
-                                text = "Start Camera Scan",
-                                style = MaterialTheme.typography.labelLarge,
-                                color = JetBlack
-                            )
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AutoAwesome,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Text(
+                                    text = "Auto-Edge",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                            }
+                        }
+
+                        Surface(
+                            onClick = onScanClick,
+                            color = Color.White,
+                            shape = RoundedCornerShape(14.dp),
+                            modifier = Modifier.testTag("camera_scan_button")
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.CameraAlt,
+                                    contentDescription = null,
+                                    tint = CeruleanBlue,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Text(
+                                    text = "Camera",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = JetBlack
+                                )
+                            }
                         }
                     }
                 }

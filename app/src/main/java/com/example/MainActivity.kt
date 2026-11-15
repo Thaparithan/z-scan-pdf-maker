@@ -1,13 +1,18 @@
 package com.example
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -151,6 +156,49 @@ fun ZScanApp(
         viewModel.completeSafExport(destinationUri)
     }
 
+    // 4. Google Play Services ML Kit Auto-Edge Document Scanner Launcher
+    val mlKitScannerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val scanResult = GmsDocumentScanningResult.fromActivityResultIntent(result.data)
+            val uris = scanResult?.pages?.map { it.imageUri } ?: emptyList()
+            if (uris.isNotEmpty()) {
+                viewModel.importImagesFromUris(uris, navigateToStudio = true)
+            }
+        }
+    }
+
+    fun launchAutoEdgeScanner(activity: Activity? = context as? Activity) {
+        val targetActivity = activity ?: (context as? Activity)
+        if (targetActivity == null) {
+            viewModel.showMessage("Activity context unavailable for document scanning.")
+            return
+        }
+
+        val options = GmsDocumentScannerOptions.Builder()
+            .setGalleryImportAllowed(true)
+            .setPageLimit(30)
+            .setResultFormats(
+                GmsDocumentScannerOptions.RESULT_FORMAT_JPEG,
+                GmsDocumentScannerOptions.RESULT_FORMAT_PDF
+            )
+            // Enables auto-edge detection, quadrilateral perspective crop, and corner drag handles
+            .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
+            .build()
+
+        GmsDocumentScanning.getClient(options)
+            .getStartScanIntent(targetActivity)
+            .addOnSuccessListener { intentSender ->
+                mlKitScannerLauncher.launch(
+                    IntentSenderRequest.Builder(intentSender).build()
+                )
+            }
+            .addOnFailureListener { error ->
+                viewModel.showMessage("Unable to launch auto-edge scanner: ${error.localizedMessage ?: "Scanner unavailable"}")
+            }
+    }
+
     fun launchImagePicker() {
         runCatching {
             multiplePhotoPickerLauncher.launch(
@@ -191,6 +239,7 @@ fun ZScanApp(
                                     recentDocuments = allDocuments,
                                     draftPageCount = studioState.pages.size,
                                     onScanDocumentClick = { viewModel.openCameraScanner() },
+                                    onAutoEdgeScanClick = { launchAutoEdgeScanner() },
                                     onImportImagesClick = { launchImagePicker() },
                                     onCreatePdfClick = { viewModel.openStudioReview() },
                                     onMyDocumentsClick = { viewModel.selectMainTab(BottomNavTab.DOCUMENTS) },
@@ -291,6 +340,7 @@ fun ZScanApp(
                         onRetakePage = { pageId -> viewModel.deleteDraftPage(pageId) },
                         onFinishToStudio = { viewModel.openStudioReview() },
                         onImportFromGalleryClick = { launchImagePicker() },
+                        onAutoEdgeScanClick = { launchAutoEdgeScanner() },
                         onBackClick = { viewModel.navigateBack() }
                     )
                 }

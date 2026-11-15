@@ -7,12 +7,15 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -22,10 +25,13 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.R
 import com.example.ui.theme.CeruleanBlue
 import com.example.ui.theme.CeruleanPrimaryDark
 import com.example.ui.theme.JetBlack
@@ -44,15 +50,14 @@ fun ZScanBrandLogo(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "zscan_logo_anim")
     val scanProgress by infiniteTransition.animateFloat(
-        initialValue = 0.34f,
-        targetValue = 0.68f,
+        initialValue = 0.22f,
+        targetValue = 0.78f,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 2000, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "scan_line_y"
     )
-    val laserYRatio = if (animatedScanLine) scanProgress else 0.52f
 
     Box(
         modifier = modifier
@@ -60,116 +65,36 @@ fun ZScanBrandLogo(
             .semantics { contentDescription = "Z Scan: PDF Maker Logo" },
         contentAlignment = Alignment.Center
     ) {
-        Canvas(modifier = Modifier.size(size)) {
-            val w = this.size.width
-            val h = this.size.height
+        Image(
+            painter = painterResource(id = R.drawable.zscan_brand_logo),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .size(size)
+                .clip(RoundedCornerShape(size * 0.24f))
+        )
 
-            // 1. Rounded Squircle Badge Base (Jet Black -> Deep Cerulean gradient)
-            drawRoundRect(
-                brush = Brush.linearGradient(
-                    colors = listOf(JetBlack, Color(0xFF072B3B), CeruleanBlue),
-                    start = Offset(0f, 0f),
-                    end = Offset(w, h)
-                ),
-                cornerRadius = CornerRadius(w * 0.24f, h * 0.24f)
-            )
+        if (animatedScanLine) {
+            Canvas(modifier = Modifier.size(size)) {
+                val w = this.size.width
+                val h = this.size.height
+                val scanY = h * scanProgress
 
-            // 2. Scanner Corner Brackets (Bright Cyan-Cerulean)
-            val bracketStroke = Stroke(width = w * 0.055f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            val bInset = w * 0.16f
-            val bLen = w * 0.14f
-            val bracketColor = CeruleanPrimaryDark
-
-            // Top-Left Bracket
-            val tlPath = Path().apply {
-                moveTo(bInset, bInset + bLen)
-                lineTo(bInset, bInset)
-                lineTo(bInset + bLen, bInset)
-            }
-            drawPath(tlPath, color = bracketColor, style = bracketStroke)
-
-            // Top-Right Bracket
-            val trPath = Path().apply {
-                moveTo(w - bInset - bLen, bInset)
-                lineTo(w - bInset, bInset)
-                lineTo(w - bInset, bInset + bLen)
-            }
-            drawPath(trPath, color = bracketColor, style = bracketStroke)
-
-            // Bottom-Left Bracket
-            val blPath = Path().apply {
-                moveTo(bInset, h - bInset - bLen)
-                lineTo(bInset, h - bInset)
-                lineTo(bInset + bLen, h - bInset)
-            }
-            drawPath(blPath, color = bracketColor, style = bracketStroke)
-
-            // Bottom-Right Bracket
-            val brPath = Path().apply {
-                moveTo(w - bInset - bLen, h - bInset)
-                lineTo(w - bInset, h - bInset)
-                lineTo(w - bInset, h - bInset - bLen)
-            }
-            drawPath(brPath, color = bracketColor, style = bracketStroke)
-
-            // 3. Document Page with Folded Corner
-            val docLeft = w * 0.27f
-            val docTop = h * 0.23f
-            val docRight = w * 0.73f
-            val docBottom = h * 0.77f
-            val foldSize = w * 0.13f
-
-            val docPath = Path().apply {
-                moveTo(docLeft, docTop)
-                lineTo(docRight - foldSize, docTop)
-                lineTo(docRight, docTop + foldSize)
-                lineTo(docRight, docBottom)
-                lineTo(docLeft, docBottom)
-                close()
-            }
-            drawPath(docPath, color = Color.White)
-
-            val foldPath = Path().apply {
-                moveTo(docRight - foldSize, docTop)
-                lineTo(docRight - foldSize, docTop + foldSize)
-                lineTo(docRight, docTop + foldSize)
-                close()
-            }
-            drawPath(foldPath, color = Color(0xFFBAE6FD))
-
-            // 4. Geometric 'Z' Monogram inside the Document
-            val zPath = Path().apply {
-                moveTo(w * 0.37f, h * 0.39f)
-                lineTo(w * 0.63f, h * 0.39f)
-                lineTo(w * 0.39f, h * 0.63f)
-                lineTo(w * 0.63f, h * 0.63f)
-            }
-            drawPath(
-                path = zPath,
-                color = CeruleanBlue,
-                style = Stroke(
-                    width = w * 0.075f,
-                    cap = StrokeCap.Round,
-                    join = StrokeJoin.Round
+                drawLine(
+                    color = NeonRose.copy(alpha = 0.35f),
+                    start = Offset(w * 0.12f, scanY),
+                    end = Offset(w * 0.88f, scanY),
+                    strokeWidth = w * 0.08f,
+                    cap = StrokeCap.Round
                 )
-            )
-
-            // 5. Neon Rose Laser Scan Line
-            val scanY = h * laserYRatio
-            drawLine(
-                color = NeonRose.copy(alpha = 0.35f),
-                start = Offset(w * 0.13f, scanY),
-                end = Offset(w * 0.87f, scanY),
-                strokeWidth = w * 0.09f,
-                cap = StrokeCap.Round
-            )
-            drawLine(
-                color = NeonRose,
-                start = Offset(w * 0.14f, scanY),
-                end = Offset(w * 0.86f, scanY),
-                strokeWidth = w * 0.038f,
-                cap = StrokeCap.Round
-            )
+                drawLine(
+                    color = NeonRose,
+                    start = Offset(w * 0.14f, scanY),
+                    end = Offset(w * 0.86f, scanY),
+                    strokeWidth = w * 0.035f,
+                    cap = StrokeCap.Round
+                )
+            }
         }
     }
 }

@@ -119,6 +119,7 @@ fun CameraScannerScreen(
     onRetakePage: (String) -> Unit,
     onFinishToStudio: () -> Unit,
     onImportFromGalleryClick: () -> Unit,
+    onAutoEdgeScanClick: (() -> Unit)? = null,
     onBackClick: () -> Unit
 ) {
     BackHandler(onBack = onBackClick)
@@ -199,6 +200,7 @@ fun CameraScannerScreen(
                     }
                 },
                 onImportFromGalleryClick = onImportFromGalleryClick,
+                onAutoEdgeScanClick = onAutoEdgeScanClick,
                 onFinishToStudio = onFinishToStudio,
                 onBackClick = onBackClick
             )
@@ -218,6 +220,7 @@ fun CameraScannerScreen(
     onRetakePage: (String) -> Unit,
     onFinishToStudio: () -> Unit,
     onImportFromGalleryClick: () -> Unit,
+    onAutoEdgeScanClick: (() -> Unit)? = null,
     onBackClick: () -> Unit
 ) = CameraScannerScreen(
     capturedPages = capturedPages,
@@ -229,6 +232,7 @@ fun CameraScannerScreen(
     onRetakePage = onRetakePage,
     onFinishToStudio = onFinishToStudio,
     onImportFromGalleryClick = onImportFromGalleryClick,
+    onAutoEdgeScanClick = onAutoEdgeScanClick,
     onBackClick = onBackClick
 )
 
@@ -241,6 +245,7 @@ private fun LiveCameraScannerContent(
     onAutoCropToggled: ((Boolean) -> Unit)?,
     onPhotoCaptured: (File, Boolean) -> Unit,
     onImportFromGalleryClick: () -> Unit,
+    onAutoEdgeScanClick: (() -> Unit)?,
     onFinishToStudio: () -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -501,6 +506,35 @@ private fun LiveCameraScannerContent(
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White
                         )
+                    }
+                }
+
+                // ML Kit Auto-Edge Scan Trigger Button
+                if (onAutoEdgeScanClick != null) {
+                    Surface(
+                        onClick = onAutoEdgeScanClick,
+                        shape = RoundedCornerShape(50),
+                        color = NeonRose,
+                        modifier = Modifier.testTag("scanner_auto_edge_button")
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AutoAwesome,
+                                contentDescription = "Launch ML Kit Auto-Edge Scanner",
+                                tint = Color.White,
+                                modifier = Modifier.size(15.dp)
+                            )
+                            Text(
+                                text = "Auto-Edge",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
                     }
                 }
             }

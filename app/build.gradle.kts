@@ -128,6 +128,7 @@ dependencies {
   // implementation(libs.firebase.appcheck.debug)
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)
+  implementation(libs.play.services.mlkit.document.scanner)
   // implementation(libs.logging.interceptor)
   // implementation(libs.moshi.kotlin)
   // implementation(libs.okhttp)
